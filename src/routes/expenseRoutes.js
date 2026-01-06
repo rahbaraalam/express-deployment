@@ -1,33 +1,20 @@
 const express = require("express")
 const router = express.Router()
 
-//fake db 
-let expenses = []
 
-//get all expenses
+const {
+    getExpenses,
+    addExpense,
+    updateExpense,
+    deleteExpense
+} = require("../controllers/expenseController")
 
-router.get("/",(req,res)=>{
-    res.json(expenses)
-})
 
-//post new expenses
+router.get("/",getExpenses)    
+router.post("/",addExpense)
+router.put("/:id",updateExpense)
+router.delete("/:id",deleteExpense)
 
-router.post("/",(req,res)=>{
-    const {title , amount , category , date} = req.body
 
-    const newExpenses = {
-        id : expenses.length + 1,
-        title,
-        amount,
-        category,
-        date
 
-    }
-
-    expenses.push(newExpenses)
-
-    res.status(201).json(newExpenses)
-
-})
-
-module.exports=router
+module.exports = router
