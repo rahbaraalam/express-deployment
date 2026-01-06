@@ -4,16 +4,13 @@ const app = express()
 //middleware 
 app.use(express.json())
 
+//import expenses route
+const expensesRoutes = require("./routes/expenseRoutes")
+
 app.get("/",(req,res)=>{
     res.send("Expense Tracker API is running ")
 })
 
-app.post("/test",(req,res)=>{
-    const data = req.body
-    res.json({
-        message:"data received",
-        receivedData:data
-    })
-})
+app.use('/expenses', expensesRoutes)
 
 module.exports=app
