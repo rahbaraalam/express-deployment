@@ -1,7 +1,8 @@
 let expenses = []
 
 exports.getExpenses = (req,res)=>{
-    res.json(expenses)
+    const userExpenses = expenses.filter(expense => expense.userId===req.user)
+    res.json(userExpenses)
 }
 
 exports.addExpense = (req,res)=>{
@@ -9,6 +10,7 @@ exports.addExpense = (req,res)=>{
 
     const newExpense = {
         id : expenses.length + 1,
+        userId:req.user,
         title,
         amount,
         category,
