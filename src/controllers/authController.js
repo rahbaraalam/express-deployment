@@ -1,25 +1,23 @@
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
+const User = require('../models/User')
 
-// fake users db 
-let users = []
 
 exports.signup = async (req,res)=>{
     const {name , email , password} = req.body
 
-    const userExists = users.find(u=> u.email === email)
+    const userExists = await User.findOne({email})
     if (userExists){
         return res.status(400).json({message : "User already exist"})
     }
 
     const hashedPassword = await bcrypt.hash(password , 10)
 
-    const newUser = {
-        id:users.length + 1,
-        name ,
+    await User.create({
+        name,
         email,
-        password: hashedPassword
-    }
+        password:hashedPassword
+    })
 
     users.push(newUser)
     res.status(400).json({message:"User registered successfully"})
@@ -28,7 +26,7 @@ exports.signup = async (req,res)=>{
 exports.login = async (req,res)=>{
     const {email , password} = req.body
 
-    const user = users.find(u => u.email === email)
+    const user = User.findOne({email})
     if(!user){
         res.status(400).json({message:"invalid credential"})
     }

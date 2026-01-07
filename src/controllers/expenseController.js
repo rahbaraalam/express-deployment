@@ -1,46 +1,59 @@
-let expenses = []
 
-exports.getExpenses = (req,res)=>{
-    const userExpenses = expenses.filter(expense => expense.userId===req.user)
+const Expense = require('../models/Expense')
+exports.getExpenses = async (req,res)=>{
+    const expenses = await Expense.find({userId : req.user})
     res.json(userExpenses)
 }
 
-exports.addExpense = (req,res)=>{
+exports.addExpense =async (req,res)=>{
     const {title , amount , category , date} = req.body
 
-    const newExpense = {
-        id : expenses.length + 1,
-        userId:req.user,
+    const newExpense = await Expense.create({
+        userId: req.user,
         title,
         amount,
         category,
         date
-    }
+    })
 
-    expenses.push(newExpense)
 
     res.status(201).json(newExpense)
 }
 
-exports.updateExpense = (req,res)=>{
-    const id = parseInt(req.params.id)
-    const expense = expenses.find(e=>e.id === id)
+exports.updateExpense = async (req,res)=>{
+    try {
+    const expense = await Expense.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user
+      },
+      req.body,
+      { new: true }
+    )
 
-    if (!expense){
-        return res.status(404).json({message:"expense not fount"})
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" })
     }
 
-    expense.title = req.body.title || expense.title
-    expense.amount = req.body.amount || expense.amount
-    expense.category = req.body.category || expense.category
-    expense.date = req.body.date || expense.date
-
     res.json(expense)
+  } catch (error) {
+    res.status(500).json({ message: "Server error" })
+  }
 }
 
-exports.deleteExpense = (req,res)=>{
-    const id = parseInt(req.params.id)
-    expenses = expenses.filter(e=>e.id !== id)
+exports.deleteExpense = async (req, res) => {
+  try {
+    const expense = await Expense.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user
+    })
 
-    res.json({message:"expenses delete"})
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" })
+    }
+
+    res.json({ message: "Expense deleted successfully" })
+  } catch (error) {
+    res.status(500).json({ message: "Server error" })
+  }
 }
